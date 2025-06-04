@@ -2,6 +2,8 @@ package parser
 
 import (
 	"io"
+	"strconv"
+	"time"
 
 	"github.com/drewherron/orgmarks/models"
 	"golang.org/x/net/html"
@@ -63,6 +65,19 @@ func (p *HTMLParser) Parse() (*models.Folder, error) {
 			case "dt":
 				// DT is a list item - could be folder (H3) or bookmark (A)
 				// We'll handle these in their respective cases
+			case "h3":
+				// H3 is a folder
+				folder := parseFolder(token)
+
+				// Get the folder title from text content
+				folder.Title = p.getTextContent()
+
+				// Add to current parent folder
+				currentFolder := folderStack[len(folderStack)-1]
+				currentFolder.AddChild(folder)
+
+				// Push this folder onto the stack for its children
+				folderStack = append(folderStack, folder)
 			}
 		case html.EndTagToken:
 			switch token.Data {
@@ -76,4 +91,44 @@ func (p *HTMLParser) Parse() (*models.Folder, error) {
 	}
 
 	return root, nil
+}
+
+// parseFolder extracts folder information from an H3 token
+func parseFolder(token html.Token) *models.Folder {
+	folder := &models.Folder{}
+
+	// Extract attributes
+	for _, attr := range token.Attr {
+		switch attr.Key {
+		case "add_date":
+			if ts, err := strconv.ParseInt(attr.Val, 10, 64); err == nil {
+				folder.AddDate = time.Unix(ts, 0)
+			}
+		case "last_modified":
+			if ts, err := strconv.ParseInt(attr.Val, 10, 64); err == nil {
+				folder.LastModified = time.Unix(ts, 0)
+			}
+		}
+	}
+
+	// Title will be extracted from the text content between <H3> and </H3>
+	// For now, we'll set it in the main loop
+
+	return folder
+}
+
+// getTextContent reads text content until the closing tag
+func (p *HTMLParser) getTextContent() string {
+	var content string
+	for {
+		tt := p.Next()
+		if tt == html.TextToken {
+			content += p.Token().Data
+		} else if tt == html.EndTagToken {
+			break
+		} else if tt == html.ErrorToken {
+			break
+		}
+	}
+	return content
 }
