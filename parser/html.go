@@ -154,7 +154,7 @@ func parseBookmark(token html.Token) *models.Bookmark {
 				}
 			}
 		case "shortcuturl":
-			// Will be handled in step 3.6
+			bookmark.ShortcutURL = attr.Val
 		case "icon", "icon_uri":
 			// Skip icon data as per requirements
 		}
