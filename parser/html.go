@@ -3,6 +3,7 @@ package parser
 import (
 	"io"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/drewherron/orgmarks/models"
@@ -142,7 +143,16 @@ func parseBookmark(token html.Token) *models.Bookmark {
 				bookmark.LastModified = time.Unix(ts, 0)
 			}
 		case "tags":
-			// Will be handled in step 3.5
+			// Parse comma-separated tags
+			if attr.Val != "" {
+				tagList := strings.Split(attr.Val, ",")
+				for _, tag := range tagList {
+					trimmed := strings.TrimSpace(tag)
+					if trimmed != "" {
+						bookmark.Tags = append(bookmark.Tags, trimmed)
+					}
+				}
+			}
 		case "shortcuturl":
 			// Will be handled in step 3.6
 		case "icon", "icon_uri":
