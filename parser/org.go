@@ -4,6 +4,8 @@ import (
 	"bufio"
 	"io"
 	"strings"
+
+	"github.com/drewherron/orgmarks/models"
 )
 
 // OrgParser parses org-mode bookmark files
@@ -181,3 +183,104 @@ func hasLink(line string) bool {
 // - A headline WITHOUT a link = Folder
 // This will be determined during the tree building phase (step 4.9)
 // by looking ahead at the content lines after each headline
+
+// Parse reads an org-mode bookmark file and returns the root folder
+func (p *OrgParser) Parse() (*models.Folder, error) {
+	root := &models.Folder{
+		Title: "Bookmarks",
+	}
+
+	// Stack to track current folder hierarchy by level
+	folderStack := []*models.Folder{root}
+	levelStack := []int{0} // Root is level 0
+
+	var currentHeadline *headline
+	var contentLines []string
+
+	for p.scanner.Scan() {
+		line := p.scanner.Text()
+
+		// Check if this is a new headline
+		if h := parseHeadline(line); h != nil {
+			// Process previous headline if exists
+			if currentHeadline != nil {
+				p.processHeadline(currentHeadline, contentLines, &folderStack, &levelStack)
+			}
+
+			// Start new headline
+			currentHeadline = h
+			contentLines = []string{}
+		} else {
+			// Accumulate content lines for current headline
+			contentLines = append(contentLines, line)
+		}
+	}
+
+	// Process final headline
+	if currentHeadline != nil {
+		p.processHeadline(currentHeadline, contentLines, &folderStack, &levelStack)
+	}
+
+	return root, p.scanner.Err()
+}
+
+// processHeadline processes a headline and its content, creating either a folder or bookmark
+func (p *OrgParser) processHeadline(h *headline, contentLines []string, folderStack *[]*models.Folder, levelStack *[]int) {
+	// Check if content has a link (determines if it's a bookmark or folder)
+	var linkURL string
+	var shortcutURL string
+	var description strings.Builder
+
+	for _, line := range contentLines {
+		// Check for link
+		if url, _, ok := parseLink(line); ok && linkURL == "" {
+			linkURL = url
+		}
+
+		// Check for properties
+		if key, value, ok := parseProperty(line); ok {
+			if key == "SHORTCUTURL" {
+				shortcutURL = value
+			}
+		}
+
+		// Collect description text
+		if isDescriptionLine(line) {
+			if description.Len() > 0 {
+				description.WriteString("\n")
+			}
+			description.WriteString(strings.TrimSpace(line))
+		}
+	}
+
+	// Determine parent folder based on level
+	// Pop stack until we find the correct parent level
+	for len(*levelStack) > 1 && (*levelStack)[len(*levelStack)-1] >= h.level {
+		*folderStack = (*folderStack)[:len(*folderStack)-1]
+		*levelStack = (*levelStack)[:len(*levelStack)-1]
+	}
+
+	parent := (*folderStack)[len(*folderStack)-1]
+
+	if linkURL != "" {
+		// This is a bookmark
+		bookmark := &models.Bookmark{
+			Title:       h.title,
+			URL:         linkURL,
+			Tags:        h.tags,
+			ShortcutURL: shortcutURL,
+			Description: description.String(),
+		}
+		parent.AddChild(bookmark)
+	} else {
+		// This is a folder
+		folder := &models.Folder{
+			Title: h.title,
+		}
+		parent.AddChild(folder)
+
+		// Push onto stack for children
+		*folderStack = append(*folderStack, folder)
+		*levelStack = append(*levelStack, h.level)
+	}
+}
