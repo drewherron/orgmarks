@@ -170,3 +170,14 @@ func isDescriptionLine(line string) bool {
 	// Everything else is description text
 	return true
 }
+
+// hasLink checks if any line contains an org link
+func hasLink(line string) bool {
+	return strings.Contains(line, "[[") && strings.Contains(line, "]]")
+}
+
+// Note: Folders vs Bookmarks distinction:
+// - A headline WITH a link (anywhere in its content section) = Bookmark
+// - A headline WITHOUT a link = Folder
+// This will be determined during the tree building phase (step 4.9)
+// by looking ahead at the content lines after each headline
