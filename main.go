@@ -1,7 +1,129 @@
 package main
 
-import "fmt"
+import (
+	"flag"
+	"fmt"
+	"os"
+	"path/filepath"
+	"strings"
+
+	"github.com/drewherron/orgmarks/converter"
+	"github.com/drewherron/orgmarks/parser"
+)
 
 func main() {
-	fmt.Println("orgmarks - bookmark converter")
+	// Define flags
+	inputFile := flag.String("i", "", "Input file (required)")
+	outputFile := flag.String("o", "", "Output file (required)")
+	flag.Parse()
+
+	// Validate flags
+	if *inputFile == "" || *outputFile == "" {
+		fmt.Fprintln(os.Stderr, "Usage: orgmarks -i <input-file> -o <output-file>")
+		fmt.Fprintln(os.Stderr, "\nExamples:")
+		fmt.Fprintln(os.Stderr, "  orgmarks -i bookmarks.html -o bookmarks.org")
+		fmt.Fprintln(os.Stderr, "  orgmarks -i bookmarks.org -o bookmarks.html")
+		os.Exit(1)
+	}
+
+	// Check input file exists
+	if _, err := os.Stat(*inputFile); os.IsNotExist(err) {
+		fmt.Fprintf(os.Stderr, "Error: Input file '%s' does not exist\n", *inputFile)
+		os.Exit(1)
+	}
+
+	// Detect file formats from extensions
+	inputExt := strings.ToLower(filepath.Ext(*inputFile))
+	outputExt := strings.ToLower(filepath.Ext(*outputFile))
+
+	// Validate format combination
+	if inputExt == outputExt {
+		fmt.Fprintln(os.Stderr, "Error: Input and output must have different formats")
+		os.Exit(1)
+	}
+
+	// Determine conversion direction
+	if (inputExt == ".html" || inputExt == ".htm") && outputExt == ".org" {
+		// HTML → Org
+		if err := htmlToOrg(*inputFile, *outputFile); err != nil {
+			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+			os.Exit(1)
+		}
+		fmt.Printf("Successfully converted %s → %s\n", *inputFile, *outputFile)
+	} else if inputExt == ".org" && (outputExt == ".html" || outputExt == ".htm") {
+		// Org → HTML
+		if err := orgToHTML(*inputFile, *outputFile); err != nil {
+			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+			os.Exit(1)
+		}
+		fmt.Printf("Successfully converted %s → %s\n", *inputFile, *outputFile)
+	} else {
+		fmt.Fprintln(os.Stderr, "Error: Unsupported file format combination")
+		fmt.Fprintln(os.Stderr, "Supported conversions:")
+		fmt.Fprintln(os.Stderr, "  .html → .org")
+		fmt.Fprintln(os.Stderr, "  .org → .html")
+		os.Exit(1)
+	}
+}
+
+// htmlToOrg converts HTML bookmark file to org-mode
+func htmlToOrg(inputFile, outputFile string) error {
+	// Open input file
+	in, err := os.Open(inputFile)
+	if err != nil {
+		return fmt.Errorf("failed to open input file: %w", err)
+	}
+	defer in.Close()
+
+	// Parse HTML
+	htmlParser := parser.NewHTMLParser(in)
+	root, err := htmlParser.Parse()
+	if err != nil {
+		return fmt.Errorf("failed to parse HTML: %w", err)
+	}
+
+	// Create output file
+	out, err := os.Create(outputFile)
+	if err != nil {
+		return fmt.Errorf("failed to create output file: %w", err)
+	}
+	defer out.Close()
+
+	// Convert to org
+	if err := converter.ToOrg(root, out); err != nil {
+		return fmt.Errorf("failed to convert to org: %w", err)
+	}
+
+	return nil
+}
+
+// orgToHTML converts org-mode bookmark file to HTML
+func orgToHTML(inputFile, outputFile string) error {
+	// Open input file
+	in, err := os.Open(inputFile)
+	if err != nil {
+		return fmt.Errorf("failed to open input file: %w", err)
+	}
+	defer in.Close()
+
+	// Parse org
+	orgParser := parser.NewOrgParser(in)
+	root, err := orgParser.Parse()
+	if err != nil {
+		return fmt.Errorf("failed to parse org: %w", err)
+	}
+
+	// Create output file
+	out, err := os.Create(outputFile)
+	if err != nil {
+		return fmt.Errorf("failed to create output file: %w", err)
+	}
+	defer out.Close()
+
+	// Convert to HTML
+	if err := converter.ToHTML(root, out); err != nil {
+		return fmt.Errorf("failed to convert to HTML: %w", err)
+	}
+
+	return nil
 }
