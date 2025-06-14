@@ -1,0 +1,20 @@
+* Bookmarks Toolbar
+** Fedora Docs
+[[https://docs.fedoraproject.org/]]
+
+** Fedora Magazine                                                    :news:
+#+SHORTCUTURL: magazine
+[[https://fedoramagazine.org/]]
+
+** Fedora Project
+*** Get Fedora                           :atomic:cloud:download:server:workstation:
+[[https://getfedora.org/]]
+
+*** More Downloads
+**** Fedora Spins                        :cinnamon:kde:lxde:lxqt:mate:soas:xfce:
+[[https://spins.fedoraproject.org/]]
+
+* Email
+** Gmail                                                      :email:google:
+[[https://mail.google.com]]
+Personal email
