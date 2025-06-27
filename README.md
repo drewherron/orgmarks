@@ -2,8 +2,6 @@
 
 A program allowing bidirectional conversion between the Netscape Bookmark HTML format (used by Firefox and Chrome) and Org-mode format, for easy bookmark organization in Emacs.
 
-
-
 ## Features
 
 - **Bidirectional conversion**: HTML ↔ Org-mode
