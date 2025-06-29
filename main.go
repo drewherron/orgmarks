@@ -25,6 +25,7 @@ func main() {
 	inputFile := flag.String("i", "", "Input file (required)")
 	outputFile := flag.String("o", "", "Output file (required)")
 	deduplicate := flag.Bool("deduplicate", false, "Remove duplicate bookmarks (keep first occurrence)")
+	deleteEmpty := flag.Bool("delete-empty", false, "Remove empty folders after processing")
 	showVersion := flag.Bool("version", false, "Show version information")
 	flag.Parse()
 
@@ -78,14 +79,14 @@ func main() {
 	// Determine conversion direction
 	if (inputExt == ".html" || inputExt == ".htm") && outputExt == ".org" {
 		// HTML → Org
-		if err := htmlToOrg(*inputFile, *outputFile, *deduplicate); err != nil {
+		if err := htmlToOrg(*inputFile, *outputFile, *deduplicate, *deleteEmpty); err != nil {
 			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 			os.Exit(1)
 		}
 		fmt.Printf("Successfully converted %s → %s\n", *inputFile, *outputFile)
 	} else if inputExt == ".org" && (outputExt == ".html" || outputExt == ".htm") {
 		// Org → HTML
-		if err := orgToHTML(*inputFile, *outputFile, *deduplicate); err != nil {
+		if err := orgToHTML(*inputFile, *outputFile, *deduplicate, *deleteEmpty); err != nil {
 			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 			os.Exit(1)
 		}
@@ -100,7 +101,7 @@ func main() {
 }
 
 // htmlToOrg converts HTML bookmark file to org-mode
-func htmlToOrg(inputFile, outputFile string, deduplicate bool) error {
+func htmlToOrg(inputFile, outputFile string, deduplicate, deleteEmpty bool) error {
 	// Open input file
 	in, err := os.Open(inputFile)
 	if err != nil {
@@ -120,6 +121,11 @@ func htmlToOrg(inputFile, outputFile string, deduplicate bool) error {
 		models.Deduplicate(root)
 	}
 
+	// Remove empty folders if requested
+	if deleteEmpty {
+		models.RemoveEmptyFolders(root)
+	}
+
 	// Create output file
 	out, err := os.Create(outputFile)
 	if err != nil {
@@ -136,7 +142,7 @@ func htmlToOrg(inputFile, outputFile string, deduplicate bool) error {
 }
 
 // orgToHTML converts org-mode bookmark file to HTML
-func orgToHTML(inputFile, outputFile string, deduplicate bool) error {
+func orgToHTML(inputFile, outputFile string, deduplicate, deleteEmpty bool) error {
 	// Open input file
 	in, err := os.Open(inputFile)
 	if err != nil {
@@ -154,6 +160,11 @@ func orgToHTML(inputFile, outputFile string, deduplicate bool) error {
 	// Apply deduplication if requested
 	if deduplicate {
 		models.Deduplicate(root)
+	}
+
+	// Remove empty folders if requested
+	if deleteEmpty {
+		models.RemoveEmptyFolders(root)
 	}
 
 	// Create output file

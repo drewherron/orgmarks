@@ -31,3 +31,38 @@ func deduplicateFolder(folder *Folder, seen map[string]bool) {
 
 	folder.Children = filtered
 }
+
+// RemoveEmptyFolders recursively removes folders that have no children.
+// This is useful after deduplication when folders may have become empty.
+func RemoveEmptyFolders(root *Folder) {
+	removeEmptyFoldersRecursive(root)
+}
+
+// removeEmptyFoldersRecursive recursively removes empty folders from a folder
+func removeEmptyFoldersRecursive(folder *Folder) {
+	// First, recursively process all subfolders
+	for _, child := range folder.Children {
+		if child.IsFolder() {
+			subfolder := child.(*Folder)
+			removeEmptyFoldersRecursive(subfolder)
+		}
+	}
+
+	// Then filter out empty folders
+	filtered := make([]Node, 0, len(folder.Children))
+	for _, child := range folder.Children {
+		if child.IsFolder() {
+			subfolder := child.(*Folder)
+			// Only keep folders that have children
+			if len(subfolder.Children) > 0 {
+				filtered = append(filtered, child)
+			}
+			// Empty folders are skipped (not appended)
+		} else {
+			// Always keep bookmarks
+			filtered = append(filtered, child)
+		}
+	}
+
+	folder.Children = filtered
+}

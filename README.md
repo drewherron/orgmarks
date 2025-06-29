@@ -103,6 +103,14 @@ Remove duplicate URLs (keeps first occurrence):
 orgmarks -i bookmarks.html -o bookmarks.org --deduplicate
 ```
 
+### Delete Empty Folders
+
+Remove empty folders after processing (might be especially useful after deduplication).
+
+```bash
+orgmarks -i bookmarks.html -o bookmarks.org --deduplicate --delete-empty
+```
+
 ### Version Information
 
 ```bash
