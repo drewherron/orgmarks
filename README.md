@@ -37,6 +37,48 @@ This will create the `orgmarks` binary in the current directory.
 go install github.com/drewherron/orgmarks@latest
 ```
 
+### Emacs Tip
+
+One of the main reasons I wrote this program was to be able to use org-refile on my bookmarks. I didn't want to use all my current targets when organizing bookmarks, so I added this to my `init.el`:
+
+```elisp
+;; Custom refile function for bookmarks files
+(defun my/verify-refile-target-is-folder ()
+  "Return t if the current heading has no direct link (children don't matter)."
+  (save-excursion
+    (org-back-to-heading t)
+    (let ((heading-end (save-excursion
+                         (outline-next-heading)
+                         (point))))
+      ;; Skip the headline itself and check only until the next heading
+      (forward-line)
+      ;; Only check this entry's content, not children
+      (let ((next-heading (save-excursion
+                            (if (re-search-forward "^\\*+ " heading-end t)
+                                (match-beginning 0)
+                              heading-end))))
+        (not (re-search-forward org-link-bracket-re next-heading t))))))
+
+(defun my/org-refile-bookmarks ()
+  "Refile to bookmarks.org when in bookmarks.org or bookmarks_source.org."
+  (interactive)
+  (if (and buffer-file-name
+           (string-match-p "bookmarks\\(_source\\)?\\.org$" buffer-file-name))
+      ;; We're in bookmarks.org or bookmarks_source.org
+      ;; Always refile to bookmarks.org (the clean target)
+      (let ((org-refile-targets '(("~/org/bookmarks.org" :maxlevel . 10)))
+            (org-refile-target-verify-function 'my/verify-refile-target-is-folder))
+        (org-refile))
+    ;; Not in a bookmarks file, use normal refile
+    (org-refile)))
+
+;; Bind this to C-c C-w (the normal org-refile binding)
+(with-eval-after-load 'org
+  (define-key org-mode-map (kbd "C-c C-w") 'my/org-refile-bookmarks))
+```
+
+This automatically detects when you're working in a bookmarks file (named either `bookmarks.org` or `bookmark_source.org`) and only shows folders (no bookmarks) as refile targets. This way, you can work in your bookmarks file (I use `~/org/bookmarks.org`) and only refile to within that same file. Or, you can convert all your messy, disorganized bookmarks to `bookmarks_source.org`, then use `C-c C-w` to refile individual bookmarks one at a time into a clean `~/org/bookmarks.org` file (which will always be the target). Feel free to change that path, of course.
+
 ## Usage
 
 ### Basic Conversion
@@ -281,7 +323,6 @@ Contributions welcome! Possible areas for improvement:
 - Merge functionality for combining bookmark files
 - Performance optimizations for large bookmark collections
 - An option for full timestamp preservation
-- Some Emacs Lisp code for a bookmark-specific refile?
 
 ## License
 
