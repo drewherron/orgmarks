@@ -6,6 +6,7 @@
 package main
 
 import (
+	"bufio"
 	"flag"
 	"fmt"
 	"os"
@@ -56,6 +57,22 @@ func main() {
 	if inputExt == outputExt {
 		fmt.Fprintln(os.Stderr, "Error: Input and output must have different formats")
 		os.Exit(1)
+	}
+
+	// Check if output file exists and prompt for confirmation
+	if _, err := os.Stat(*outputFile); err == nil {
+		fmt.Fprintf(os.Stderr, "orgmarks: overwrite '%s'? ", *outputFile)
+		reader := bufio.NewReader(os.Stdin)
+		response, err := reader.ReadString('\n')
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "\nError reading input: %v\n", err)
+			os.Exit(1)
+		}
+		response = strings.TrimSpace(strings.ToLower(response))
+		if response != "y" && response != "yes" {
+			fmt.Fprintln(os.Stderr, "Operation cancelled")
+			os.Exit(0)
+		}
 	}
 
 	// Determine conversion direction
