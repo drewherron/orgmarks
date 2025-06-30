@@ -10,7 +10,7 @@ import (
 
 func TestParseFirefoxBookmarks(t *testing.T) {
 	// Open the Firefox sample file
-	file, err := os.Open("../firefox_default_bookmarks.html")
+	file, err := os.Open("../firefox_test_bookmarks.html")
 	if err != nil {
 		t.Fatalf("Failed to open Firefox bookmark file: %v", err)
 	}
@@ -94,7 +94,7 @@ func TestParseFirefoxBookmarks(t *testing.T) {
 
 func TestParseChromiumBookmarks(t *testing.T) {
 	// Open the Chromium sample file
-	file, err := os.Open("../chromium_default_bookmarks.html")
+	file, err := os.Open("../chromium_test_bookmarks.html")
 	if err != nil {
 		t.Fatalf("Failed to open Chromium bookmark file: %v", err)
 	}

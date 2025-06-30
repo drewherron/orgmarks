@@ -12,7 +12,7 @@ import (
 
 func TestFirefoxHTMLToOrg(t *testing.T) {
 	// Parse Firefox HTML bookmarks
-	htmlFile, err := os.Open("../firefox_default_bookmarks.html")
+	htmlFile, err := os.Open("../firefox_test_bookmarks.html")
 	if err != nil {
 		t.Fatalf("Failed to open Firefox HTML file: %v", err)
 	}
@@ -68,7 +68,7 @@ func TestFirefoxHTMLToOrg(t *testing.T) {
 
 func TestChromiumHTMLToOrg(t *testing.T) {
 	// Parse Chromium HTML bookmarks
-	htmlFile, err := os.Open("../chromium_default_bookmarks.html")
+	htmlFile, err := os.Open("../chromium_test_bookmarks.html")
 	if err != nil {
 		t.Fatalf("Failed to open Chromium HTML file: %v", err)
 	}
@@ -111,7 +111,7 @@ func TestChromiumHTMLToOrg(t *testing.T) {
 
 func TestRoundTripHTMLToOrgToHTML(t *testing.T) {
 	// Parse Firefox HTML bookmarks
-	htmlFile, err := os.Open("../firefox_default_bookmarks.html")
+	htmlFile, err := os.Open("../firefox_test_bookmarks.html")
 	if err != nil {
 		t.Fatalf("Failed to open Firefox HTML file: %v", err)
 	}
