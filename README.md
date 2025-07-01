@@ -6,6 +6,7 @@ A program allowing bidirectional conversion between the Netscape Bookmark HTML f
 
 - **Bidirectional conversion**: HTML ↔ Org-mode
 - **Deduplication**: Optional removal of duplicate URLs
+- **Merging**: Multiple inputs produce one Org file
 - **Nested folder support**: Handles nested bookmark hierarchies
 - **Standards-compliant**: Compatible with Firefox, Chrome, and Chromium bookmark exports
 
@@ -105,11 +106,33 @@ orgmarks -i bookmarks.html -o bookmarks.org --deduplicate
 
 ### Delete Empty Folders
 
-Remove empty folders after processing (might be especially useful after deduplication).
+Remove empty folders after processing (might be especially useful after deduplication):
 
 ```bash
 orgmarks -i bookmarks.html -o bookmarks.org --deduplicate --delete-empty
 ```
+
+### Merging Files
+
+You can merge multiple bookmark files into a single Org file just by supplying multiple input files. Folders with matching names (case-insensitive) are combined, and their bookmarks are merged together. You can merge any combination of `.org` and `.html` files, but with multiple inputs the output must be an Org file:
+
+```bash
+# Merge two org files
+orgmarks -i organized.org -i new_bookmarks.org -o final.org
+
+# Merge HTML bookmarks into an existing org file
+orgmarks -i bookmarks.org -i browser_export.html -o bookmarks.org
+
+# Merge multiple files with deduplication
+orgmarks -i file1.org -i file2.org -i file3.html -o merged.org --deduplicate
+
+# Merge and clean up
+orgmarks -i primary.org -i additions.html -o final.org --deduplicate --delete-empty
+```
+
+**Note**: When merging with `--deduplicate`, bookmarks from the first input file take precedence over duplicates in subsequent files. This means you can list your organized bookmarks first, then add new bookmarks from your browser, and any duplicates will keep the version from your organized file.
+
+**Another Note**: Remember that the bookmarks are added first and then deduplicated. If there are folders containing only duplicate files, it will look like we're just adding empty folders to our output file. This is actually intentional, and if you want to remove all empty folders in the output file you can use `--delete-empty`.
 
 ### Version Information
 
@@ -133,7 +156,7 @@ Folders are represented as Org headlines:
 
 ```org
 * Bookmarks Toolbar
-** Development
+** Technology
 *** Programming
 ```
 
@@ -160,14 +183,14 @@ Tags are appended to the headline in the standard Org format:
 Shortcut URLs are stored as properties:
 
 ```org
-** Free Software Foundation                                               :news:
-#+SHORTCUTURL: fsf
-[[https://www.fsf.org]]
+** Wiktionary
+#+SHORTCUTURL: wk
+[[https://www.wiktionary.org/]]
 ```
 
-These may be called something else (keyword, nickname, etc.) depending on browser. Or the functionality may be missing entirely.
+These are basically aliases that can be entered in the address bar to visit a URL. They may be called something else (keyword, nickname, etc.) depending on browser. Or, the functionality may be missing entirely.
 
-PS: Zen Browser looks pretty nice... Just saying.
+PS: Zen Browser looks pretty nice.
 
 ### Descriptions
 
@@ -234,7 +257,7 @@ orgmarks preserves the following metadata during conversion:
 - **Descriptions**: Additional text associated with bookmarks
 - **Hierarchy**: Nested folder structure of any depth
 
-**Note on timestamps**: Timestamps are not written to Org files, I thought it was too messy/cluttered and I don't think anyone cares about this anyway when it comes to web bookmarks. When converting Org back to HTML, the current time is used for ADD_DATE and LAST_MODIFIED. If you need to preserve exact timestamps, don't use this program. I was considering adding a `--full` option for timestamp preservation, or... you could add it!
+**Note on timestamps**: Timestamps are not written to Org files, I thought it was too messy/cluttered and I don't think anyone cares about this anyway when it comes to web bookmarks. When converting Org back to HTML, the current time is used for ADD_DATE and LAST_MODIFIED. If you need to preserve exact timestamps, don't use this program. I was considering adding another command line option for timestamp preservation, or... you could add it!
 
 ### Special Handling
 
@@ -328,7 +351,6 @@ go test ./... -cover
 Contributions welcome! Possible areas for improvement:
 
 - Additional bookmark format support (JSON?)
-- Merge functionality for combining bookmark files
 - Performance optimizations for large bookmark collections
 - An option for full timestamp preservation
 
