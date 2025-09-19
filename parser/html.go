@@ -78,6 +78,16 @@ func (p *HTMLParser) Parse() (*models.Folder, error) {
 
 				// Push this folder onto the stack for its children
 				folderStack = append(folderStack, folder)
+			case "a":
+				// A is a bookmark
+				bookmark := parseBookmark(token)
+
+				// Get the bookmark title from text content
+				bookmark.Title = p.getTextContent()
+
+				// Add to current parent folder
+				currentFolder := folderStack[len(folderStack)-1]
+				currentFolder.AddChild(bookmark)
 			}
 		case html.EndTagToken:
 			switch token.Data {
@@ -111,10 +121,36 @@ func parseFolder(token html.Token) *models.Folder {
 		}
 	}
 
-	// Title will be extracted from the text content between <H3> and </H3>
-	// For now, we'll set it in the main loop
-
 	return folder
+}
+
+// parseBookmark extracts bookmark information from an A token
+func parseBookmark(token html.Token) *models.Bookmark {
+	bookmark := &models.Bookmark{}
+
+	// Extract attributes
+	for _, attr := range token.Attr {
+		switch attr.Key {
+		case "href":
+			bookmark.URL = attr.Val
+		case "add_date":
+			if ts, err := strconv.ParseInt(attr.Val, 10, 64); err == nil {
+				bookmark.AddDate = time.Unix(ts, 0)
+			}
+		case "last_modified":
+			if ts, err := strconv.ParseInt(attr.Val, 10, 64); err == nil {
+				bookmark.LastModified = time.Unix(ts, 0)
+			}
+		case "tags":
+			// Will be handled in step 3.5
+		case "shortcuturl":
+			// Will be handled in step 3.6
+		case "icon", "icon_uri":
+			// Skip icon data as per requirements
+		}
+	}
+
+	return bookmark
 }
 
 // getTextContent reads text content until the closing tag
