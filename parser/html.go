@@ -83,6 +83,13 @@ func (p *HTMLParser) Parse() (*models.Folder, error) {
 				// A is a bookmark
 				bookmark := parseBookmark(token)
 
+				// Skip Firefox place: URLs (dynamic queries)
+				if strings.HasPrefix(bookmark.URL, "place:") {
+					// Skip text content to advance parser
+					p.getTextContent()
+					continue
+				}
+
 				// Get the bookmark title from text content
 				bookmark.Title = p.getTextContent()
 
