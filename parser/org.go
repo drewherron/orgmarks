@@ -76,3 +76,27 @@ func parseHeadline(line string) *headline {
 
 	return h
 }
+
+// parseProperty parses org-mode property lines like #+SHORTCUTURL: value
+func parseProperty(line string) (key, value string, ok bool) {
+	line = strings.TrimSpace(line)
+
+	// Check if it starts with #+
+	if !strings.HasPrefix(line, "#+") {
+		return "", "", false
+	}
+
+	// Remove #+ prefix
+	rest := strings.TrimSpace(line[2:])
+
+	// Find the colon separator
+	colonIdx := strings.Index(rest, ":")
+	if colonIdx == -1 {
+		return "", "", false
+	}
+
+	key = strings.ToUpper(strings.TrimSpace(rest[:colonIdx]))
+	value = strings.TrimSpace(rest[colonIdx+1:])
+
+	return key, value, true
+}
