@@ -260,6 +260,14 @@ func (p *OrgParser) processHeadline(h *headline, contentLines []string, folderSt
 		*levelStack = (*levelStack)[:len(*levelStack)-1]
 	}
 
+	// Safety check: ensure stacks are not empty (should never happen, but guard against it)
+	if len(*folderStack) == 0 {
+		// Malformed structure - reset to root
+		root := &models.Folder{Title: "Bookmarks"}
+		*folderStack = []*models.Folder{root}
+		*levelStack = []int{0}
+	}
+
 	parent := (*folderStack)[len(*folderStack)-1]
 
 	if linkURL != "" {
@@ -271,12 +279,24 @@ func (p *OrgParser) processHeadline(h *headline, contentLines []string, folderSt
 			ShortcutURL: shortcutURL,
 			Description: description.String(),
 		}
+
+		// Skip bookmarks with empty titles (malformed)
+		if bookmark.Title == "" {
+			return
+		}
+
 		parent.AddChild(bookmark)
 	} else {
 		// This is a folder
 		folder := &models.Folder{
 			Title: h.title,
 		}
+
+		// Skip folders with empty titles (malformed)
+		if folder.Title == "" {
+			return
+		}
+
 		parent.AddChild(folder)
 
 		// Push onto stack for children
