@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/drewherron/orgmarks/converter"
+	"github.com/drewherron/orgmarks/models"
 	"github.com/drewherron/orgmarks/parser"
 )
 
@@ -15,6 +16,7 @@ func main() {
 	// Define flags
 	inputFile := flag.String("i", "", "Input file (required)")
 	outputFile := flag.String("o", "", "Output file (required)")
+	deduplicate := flag.Bool("deduplicate", false, "Remove duplicate bookmarks (keep first occurrence)")
 	flag.Parse()
 
 	// Validate flags
@@ -45,14 +47,14 @@ func main() {
 	// Determine conversion direction
 	if (inputExt == ".html" || inputExt == ".htm") && outputExt == ".org" {
 		// HTML → Org
-		if err := htmlToOrg(*inputFile, *outputFile); err != nil {
+		if err := htmlToOrg(*inputFile, *outputFile, *deduplicate); err != nil {
 			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 			os.Exit(1)
 		}
 		fmt.Printf("Successfully converted %s → %s\n", *inputFile, *outputFile)
 	} else if inputExt == ".org" && (outputExt == ".html" || outputExt == ".htm") {
 		// Org → HTML
-		if err := orgToHTML(*inputFile, *outputFile); err != nil {
+		if err := orgToHTML(*inputFile, *outputFile, *deduplicate); err != nil {
 			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 			os.Exit(1)
 		}
@@ -67,7 +69,7 @@ func main() {
 }
 
 // htmlToOrg converts HTML bookmark file to org-mode
-func htmlToOrg(inputFile, outputFile string) error {
+func htmlToOrg(inputFile, outputFile string, deduplicate bool) error {
 	// Open input file
 	in, err := os.Open(inputFile)
 	if err != nil {
@@ -80,6 +82,11 @@ func htmlToOrg(inputFile, outputFile string) error {
 	root, err := htmlParser.Parse()
 	if err != nil {
 		return fmt.Errorf("failed to parse HTML: %w", err)
+	}
+
+	// Apply deduplication if requested
+	if deduplicate {
+		models.Deduplicate(root)
 	}
 
 	// Create output file
@@ -98,7 +105,7 @@ func htmlToOrg(inputFile, outputFile string) error {
 }
 
 // orgToHTML converts org-mode bookmark file to HTML
-func orgToHTML(inputFile, outputFile string) error {
+func orgToHTML(inputFile, outputFile string, deduplicate bool) error {
 	// Open input file
 	in, err := os.Open(inputFile)
 	if err != nil {
@@ -111,6 +118,11 @@ func orgToHTML(inputFile, outputFile string) error {
 	root, err := orgParser.Parse()
 	if err != nil {
 		return fmt.Errorf("failed to parse org: %w", err)
+	}
+
+	// Apply deduplication if requested
+	if deduplicate {
+		models.Deduplicate(root)
 	}
 
 	// Create output file
