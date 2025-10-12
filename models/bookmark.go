@@ -47,3 +47,32 @@ func (f *Folder) IsFolder() bool {
 func (f *Folder) GetTitle() string {
 	return f.Title
 }
+
+// AddChild adds a node to the folder's children
+func (f *Folder) AddChild(node Node) {
+	f.Children = append(f.Children, node)
+}
+
+// Walk traverses the tree depth-first, calling the visitor function for each node
+// The visitor receives the node and its depth (0 for root)
+func Walk(node Node, depth int, visitor func(Node, int)) {
+	visitor(node, depth)
+	if node.IsFolder() {
+		folder := node.(*Folder)
+		for _, child := range folder.Children {
+			Walk(child, depth+1, visitor)
+		}
+	}
+}
+
+// CountNodes returns the total number of nodes (folders + bookmarks) in the tree
+func CountNodes(node Node) int {
+	count := 1
+	if node.IsFolder() {
+		folder := node.(*Folder)
+		for _, child := range folder.Children {
+			count += CountNodes(child)
+		}
+	}
+	return count
+}
