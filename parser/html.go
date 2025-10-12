@@ -74,6 +74,10 @@ func (p *HTMLParser) Parse() (*models.Folder, error) {
 				folder.Title = p.getTextContent()
 
 				// Add to current parent folder
+				if len(folderStack) == 0 {
+					// Malformed HTML - no parent folder available
+					folderStack = append(folderStack, root)
+				}
 				currentFolder := folderStack[len(folderStack)-1]
 				currentFolder.AddChild(folder)
 
@@ -93,7 +97,16 @@ func (p *HTMLParser) Parse() (*models.Folder, error) {
 				// Get the bookmark title from text content
 				bookmark.Title = p.getTextContent()
 
+				// Skip bookmarks without URLs (malformed)
+				if bookmark.URL == "" {
+					continue
+				}
+
 				// Add to current parent folder
+				if len(folderStack) == 0 {
+					// Malformed HTML - no parent folder available
+					folderStack = append(folderStack, root)
+				}
 				currentFolder := folderStack[len(folderStack)-1]
 				currentFolder.AddChild(bookmark)
 			}
