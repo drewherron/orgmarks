@@ -1,0 +1,24 @@
+* Development
+** GitHub
+[[https://github.com]]
+Code hosting and collaboration platform
+
+** Stack Overflow                                              :programming:help:
+[[https://stackoverflow.com]]
+Programming Q&A community
+
+* News
+** Hacker News                                                     :tech:startup:
+[[https://news.ycombinator.com]]
+
+** Reddit Programming                                                :tech:forum:
+[[https://reddit.com/r/programming]]
+
+* Tools
+** Google                                                              :search:
+#+SHORTCUTURL: g
+[[https://google.com]]
+
+** Wikipedia                                                    :reference:wiki:
+#+SHORTCUTURL: wiki
+[[https://wikipedia.org]]
