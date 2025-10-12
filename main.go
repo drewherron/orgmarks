@@ -1,3 +1,8 @@
+// Package main provides the orgmarks CLI tool for converting between
+// browser bookmark HTML files and Org-mode format.
+//
+// orgmarks supports bidirectional conversion with full metadata preservation
+// including tags, shortcuts, timestamps, and nested folder structures.
 package main
 
 import (
@@ -12,12 +17,21 @@ import (
 	"github.com/drewherron/orgmarks/parser"
 )
 
+const version = "1.0.0"
+
 func main() {
 	// Define flags
 	inputFile := flag.String("i", "", "Input file (required)")
 	outputFile := flag.String("o", "", "Output file (required)")
 	deduplicate := flag.Bool("deduplicate", false, "Remove duplicate bookmarks (keep first occurrence)")
+	showVersion := flag.Bool("version", false, "Show version information")
 	flag.Parse()
+
+	// Handle version flag
+	if *showVersion {
+		fmt.Printf("orgmarks version %s\n", version)
+		os.Exit(0)
+	}
 
 	// Validate flags
 	if *inputFile == "" || *outputFile == "" {
