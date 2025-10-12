@@ -1,3 +1,8 @@
+// Package converter provides functions for converting between the internal
+// bookmark tree representation and external formats (HTML and Org-mode).
+//
+// ToOrg converts the internal model to Org-mode format.
+// ToHTML converts the internal model to Netscape Bookmark HTML format.
 package converter
 
 import (

@@ -1,3 +1,9 @@
+// Package models provides the core data structures for representing
+// bookmark trees with folders and bookmarks.
+//
+// The Node interface allows polymorphic handling of both folders and
+// bookmarks in a tree structure, enabling recursive traversal and
+// manipulation of bookmark hierarchies.
 package models
 
 import "time"

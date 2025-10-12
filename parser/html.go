@@ -1,3 +1,8 @@
+// Package parser provides parsers for converting HTML and Org-mode files
+// into the internal bookmark tree representation.
+//
+// HTMLParser handles Netscape Bookmark format HTML files (used by Firefox and Chrome).
+// OrgParser handles Org-mode formatted bookmark files.
 package parser
 
 import (
