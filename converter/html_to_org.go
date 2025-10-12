@@ -29,9 +29,16 @@ func writeOrgNode(node models.Node, depth int, w io.Writer) error {
 			}
 		}
 
-		// Write children
+		// Write children (handles empty folders gracefully - just writes headline)
 		for _, child := range folder.Children {
 			if err := writeOrgNode(child, depth+1, w); err != nil {
+				return err
+			}
+		}
+
+		// Add blank line after empty folders for readability
+		if depth > 0 && len(folder.Children) == 0 {
+			if _, err := fmt.Fprintln(w); err != nil {
 				return err
 			}
 		}
