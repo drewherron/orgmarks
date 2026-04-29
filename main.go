@@ -13,7 +13,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/drewherron/orgmarks/converter"
+	"github.com/drewherron/orgmarks/internal/converter"
 	"github.com/drewherron/orgmarks/internal/models"
 	"github.com/drewherron/orgmarks/internal/parser"
 )
