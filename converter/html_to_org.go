@@ -10,7 +10,7 @@ import (
 	"io"
 	"strings"
 
-	"github.com/drewherron/orgmarks/models"
+	"github.com/drewherron/orgmarks/internal/models"
 )
 
 // ToOrg converts a bookmark tree to org-mode format

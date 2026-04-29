@@ -14,7 +14,7 @@ import (
 	"strings"
 
 	"github.com/drewherron/orgmarks/converter"
-	"github.com/drewherron/orgmarks/models"
+	"github.com/drewherron/orgmarks/internal/models"
 	"github.com/drewherron/orgmarks/parser"
 )
 

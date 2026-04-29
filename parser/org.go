@@ -5,7 +5,7 @@ import (
 	"io"
 	"strings"
 
-	"github.com/drewherron/orgmarks/models"
+	"github.com/drewherron/orgmarks/internal/models"
 )
 
 // OrgParser parses org-mode bookmark files

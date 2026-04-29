@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/drewherron/orgmarks/models"
+	"github.com/drewherron/orgmarks/internal/models"
 )
 
 // ToHTML converts a bookmark tree to Netscape Bookmark HTML format

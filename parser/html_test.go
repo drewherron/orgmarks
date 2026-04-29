@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/drewherron/orgmarks/models"
+	"github.com/drewherron/orgmarks/internal/models"
 )
 
 func TestParseFirefoxBookmarks(t *testing.T) {

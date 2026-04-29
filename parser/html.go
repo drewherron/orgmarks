@@ -11,7 +11,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/drewherron/orgmarks/models"
+	"github.com/drewherron/orgmarks/internal/models"
 	"golang.org/x/net/html"
 )
 
