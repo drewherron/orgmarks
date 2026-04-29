@@ -43,6 +43,16 @@ go install github.com/drewherron/orgmarks@latest
 One of the main reasons I wrote this program was to be able to use org-refile on my bookmarks. I didn't want to use all my current targets when organizing bookmarks, so I added this to my `init.el`:
 
 ```elisp
+;; Orgmarks file settings
+(defvar my/bookmark-source-files
+  '("bookmarks.org"
+    "bookmarks_source.org")
+  "Filenames that trigger bookmark-specific org-refile behavior.")
+
+(defvar my/bookmark-target-file
+  "~/org/bookmarks.org"
+  "Target file for bookmark org-refile.")
+
 ;; Custom refile function for bookmarks files
 (defun my/verify-refile-target-is-folder ()
   "Return t if the current heading has no direct link (children don't matter)."
@@ -61,13 +71,12 @@ One of the main reasons I wrote this program was to be able to use org-refile on
         (not (re-search-forward org-link-bracket-re next-heading t))))))
 
 (defun my/org-refile-bookmarks ()
-  "Refile to bookmarks.org when in bookmarks.org or bookmarks_source.org."
+  "Refile to bookmark target when in a bookmark source file."
   (interactive)
   (if (and buffer-file-name
-           (string-match-p "bookmarks\\(_source\\)?\\.org$" buffer-file-name))
-      ;; We're in bookmarks.org or bookmarks_source.org
-      ;; Always refile to bookmarks.org (the clean target)
-      (let ((org-refile-targets '(("~/org/bookmarks.org" :maxlevel . 10)))
+           (cl-some (lambda (f) (string-suffix-p f buffer-file-name))
+                    my/bookmark-source-files))
+      (let ((org-refile-targets `((,my/bookmark-target-file :maxlevel . 10)))
             (org-refile-target-verify-function 'my/verify-refile-target-is-folder))
         (org-refile))
     ;; Not in a bookmarks file, use normal refile
