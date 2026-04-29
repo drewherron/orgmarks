@@ -10,7 +10,7 @@ import (
 
 func TestParseOrgBookmarks(t *testing.T) {
 	// Open the test org file
-	file, err := os.Open("../../test_bookmarks.org")
+	file, err := os.Open("../../test/testdata/test_bookmarks.org")
 	if err != nil {
 		t.Fatalf("Failed to open test org file: %v", err)
 	}
