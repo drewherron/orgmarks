@@ -15,7 +15,7 @@ import (
 
 	"github.com/drewherron/orgmarks/converter"
 	"github.com/drewherron/orgmarks/internal/models"
-	"github.com/drewherron/orgmarks/parser"
+	"github.com/drewherron/orgmarks/internal/parser"
 )
 
 const version = "0.1.0"

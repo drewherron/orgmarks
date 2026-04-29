@@ -7,7 +7,7 @@ import (
 	"testing"
 
 	"github.com/drewherron/orgmarks/internal/models"
-	"github.com/drewherron/orgmarks/parser"
+	"github.com/drewherron/orgmarks/internal/parser"
 )
 
 func TestFirefoxHTMLToOrg(t *testing.T) {
