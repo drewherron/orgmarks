@@ -20,22 +20,40 @@ A program allowing bidirectional conversion between the Netscape Bookmark HTML f
 
 ## Installation
 
-### From Source
+### Download
 
-Requires Go 1.16 or later:
+Pre-built binaries are available on the
+[Releases](https://github.com/drewherron/orgmarks/releases) page for Linux,
+macOS (Intel and Apple Silicon), and Windows. Download the appropriate file,
+make it executable if necessary, and place it somewhere on your PATH:
 
-```bash
-git clone https://github.com/drewherron/orgmarks.git
-cd orgmarks
-go build
+```
+# Linux
+chmod +x orgmarks-linux-amd64
+sudo mv orgmarks-linux-amd64 /usr/local/bin/orgmarks
+
+# macOS
+chmod +x orgmarks-macos-arm64
+sudo mv orgmarks-macos-arm64 /usr/local/bin/orgmarks
+
+# Windows: rename orgmarks-windows-amd64.exe to orgmarks.exe
+# and place it in a directory on your PATH
 ```
 
-This will create the `orgmarks` binary in the current directory.
+### Build from source
 
-### Install to PATH
+Requires Go 1.16 or later.
 
-```bash
+```
 go install github.com/drewherron/orgmarks@latest
+```
+
+Or clone and build:
+
+```
+git clone https://github.com/drewherron/orgmarks.git
+cd orgmarks
+go build -o orgmarks .
 ```
 
 ### Emacs Tip
@@ -295,14 +313,8 @@ When using `--deduplicate`, orgmarks:
 ### Build Commands
 
 ```bash
-# Standard build
-go build
-
-# Build for specific platforms
-GOOS=linux GOARCH=amd64 go build -o orgmarks-linux-amd64
-GOOS=darwin GOARCH=amd64 go build -o orgmarks-darwin-amd64
-GOOS=darwin GOARCH=arm64 go build -o orgmarks-darwin-arm64
-GOOS=windows GOARCH=amd64 go build -o orgmarks-windows-amd64.exe
+# Build release binaries for all platforms
+make release-all
 
 # Run tests
 go test ./...
@@ -310,58 +322,6 @@ go test ./...
 # Run tests with verbose output
 go test ./... -v
 ```
-
-## Development
-
-### Project Structure
-
-```
-orgmarks/
-├── main.go                     # CLI entry point
-├── models/
-│   ├── bookmark.go             # Data structures
-│   ├── fixtures.go             # Test fixtures
-│   └── deduplicate.go          # Deduplication logic
-├── parser/
-│   ├── html.go                 # HTML parser
-│   ├── html_test.go            # HTML parser tests
-│   ├── org.go                  # Org-mode parser
-│   └── org_test.go             # Org-mode parser tests
-├── converter/
-│   ├── html_to_org.go          # HTML → Org converter
-│   ├── org_to_html.go          # Org → HTML converter
-│   └── converter_test.go       # Integration tests
-├── test_bookmarks.org          # Test fixture
-└── README.md
-```
-
-### Running Tests
-
-The test suite includes:
-
-- **Unit tests**: Parser edge cases (empty files, special characters, deep nesting, long tag lists)
-- **Integration tests**: Full conversion pipelines (HTML → Org → HTML round-trips)
-- **Fixtures**: Real browser bookmark exports for testing
-
-```bash
-# Run all tests
-go test ./...
-
-# Run specific package tests
-go test ./parser/...
-go test ./converter/...
-
-# Run with coverage
-go test ./... -cover
-```
-
-## Contributing
-
-Contributions welcome! Possible areas for improvement:
-
-- Additional bookmark format support (JSON?)
-- Performance optimizations for large bookmark collections
-- An option for full timestamp preservation
 
 ## License
 

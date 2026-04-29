@@ -18,7 +18,7 @@ import (
 	"github.com/drewherron/orgmarks/parser"
 )
 
-const version = "1.0.0"
+const version = "0.1.0"
 
 // stringSlice is a custom flag type that allows multiple values
 type stringSlice []string
