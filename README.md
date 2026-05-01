@@ -42,7 +42,7 @@ sudo mv orgmarks-macos-arm64 /usr/local/bin/orgmarks
 
 ### Build from source
 
-Requires Go 1.16 or later.
+Requires [Go](https://go.dev/dl/) 1.24 or later.
 
 ```
 go install github.com/drewherron/orgmarks@latest
@@ -53,8 +53,12 @@ Or clone and build:
 ```
 git clone https://github.com/drewherron/orgmarks.git
 cd orgmarks
-go build -o orgmarks .
+make build
 ```
+
+This produces a binary executable `./orgmarks`. You can also use `make
+release-all` to cross-compile binaries for all supported platforms into
+`dist/`, or `make test` to run the test suite.
 
 ### Emacs Tip
 
@@ -301,27 +305,6 @@ When using `--deduplicate`, orgmarks:
 2. Tracks encountered URLs
 3. Keeps only the first occurrence of each URL
 4. Removes all subsequent duplicates
-
-## Building
-
-### Requirements
-
-- Go 1.16 or later
-- Dependencies (automatically downloaded):
-  - `golang.org/x/net/html` for HTML parsing
-
-### Build Commands
-
-```bash
-# Build release binaries for all platforms
-make release-all
-
-# Run tests
-go test ./...
-
-# Run tests with verbose output
-go test ./... -v
-```
 
 ## License
 
