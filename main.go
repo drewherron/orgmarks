@@ -18,7 +18,11 @@ import (
 	"github.com/drewherron/orgmarks/internal/parser"
 )
 
-const version = "0.1.0"
+var (
+	Version   = "dev"
+	BuildTime = "unknown"
+	GitCommit = "unknown"
+)
 
 // stringSlice is a custom flag type that allows multiple values
 type stringSlice []string
@@ -44,7 +48,7 @@ func main() {
 
 	// Handle version flag
 	if *showVersion {
-		fmt.Printf("orgmarks version %s\n", version)
+		fmt.Printf("orgmarks version %s (built %s, commit %s)\n", Version, BuildTime, GitCommit)
 		os.Exit(0)
 	}
 
