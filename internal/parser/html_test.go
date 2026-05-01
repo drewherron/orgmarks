@@ -8,22 +8,19 @@ import (
 	"github.com/drewherron/orgmarks/internal/models"
 )
 
-func TestParseFirefoxBookmarks(t *testing.T) {
-	// Open the Firefox sample file
-	file, err := os.Open("../../test/testdata/firefox_test_bookmarks.html")
+func TestParseHTMLBookmarks(t *testing.T) {
+	file, err := os.Open("../../test/testdata/bookmarks.html")
 	if err != nil {
-		t.Fatalf("Failed to open Firefox bookmark file: %v", err)
+		t.Fatalf("Failed to open HTML bookmark file: %v", err)
 	}
 	defer file.Close()
 
-	// Parse the file
 	parser := NewHTMLParser(file)
 	root, err := parser.Parse()
 	if err != nil {
-		t.Fatalf("Failed to parse Firefox bookmarks: %v", err)
+		t.Fatalf("Failed to parse HTML bookmarks: %v", err)
 	}
 
-	// Basic validation
 	if root == nil {
 		t.Fatal("Root folder is nil")
 	}
@@ -32,15 +29,13 @@ func TestParseFirefoxBookmarks(t *testing.T) {
 		t.Error("Root folder has no title")
 	}
 
-	// Count nodes
 	nodeCount := models.CountNodes(root)
 	if nodeCount == 0 {
 		t.Error("No nodes found in bookmark tree")
 	}
 
-	t.Logf("Parsed %d total nodes from Firefox bookmarks", nodeCount)
+	t.Logf("Parsed %d total nodes from HTML bookmarks", nodeCount)
 
-	// Verify we can walk the tree
 	folderCount := 0
 	bookmarkCount := 0
 	models.Walk(root, 0, func(node models.Node, depth int) {
@@ -48,7 +43,6 @@ func TestParseFirefoxBookmarks(t *testing.T) {
 			folderCount++
 		} else {
 			bookmarkCount++
-			// Verify bookmark has URL
 			bookmark := node.(*models.Bookmark)
 			if bookmark.URL == "" {
 				t.Errorf("Bookmark '%s' has no URL", bookmark.Title)
@@ -66,7 +60,6 @@ func TestParseFirefoxBookmarks(t *testing.T) {
 		t.Error("No bookmarks found")
 	}
 
-	// Verify specific features were parsed
 	foundTags := false
 	foundShortcut := false
 	models.Walk(root, 0, func(node models.Node, depth int) {
@@ -89,66 +82,6 @@ func TestParseFirefoxBookmarks(t *testing.T) {
 
 	if !foundShortcut {
 		t.Error("No bookmarks with shortcuts found")
-	}
-}
-
-func TestParseChromiumBookmarks(t *testing.T) {
-	// Open the Chromium sample file
-	file, err := os.Open("../../test/testdata/chromium_test_bookmarks.html")
-	if err != nil {
-		t.Fatalf("Failed to open Chromium bookmark file: %v", err)
-	}
-	defer file.Close()
-
-	// Parse the file
-	parser := NewHTMLParser(file)
-	root, err := parser.Parse()
-	if err != nil {
-		t.Fatalf("Failed to parse Chromium bookmarks: %v", err)
-	}
-
-	// Basic validation
-	if root == nil {
-		t.Fatal("Root folder is nil")
-	}
-
-	if root.Title == "" {
-		t.Error("Root folder has no title")
-	}
-
-	// Count nodes
-	nodeCount := models.CountNodes(root)
-	if nodeCount == 0 {
-		t.Error("No nodes found in bookmark tree")
-	}
-
-	t.Logf("Parsed %d total nodes from Chromium bookmarks", nodeCount)
-
-	// Verify we can walk the tree
-	folderCount := 0
-	bookmarkCount := 0
-	models.Walk(root, 0, func(node models.Node, depth int) {
-		if node.IsFolder() {
-			folderCount++
-			t.Logf("Folder at depth %d: %s", depth, node.GetTitle())
-		} else {
-			bookmarkCount++
-			// Verify bookmark has URL
-			bookmark := node.(*models.Bookmark)
-			if bookmark.URL == "" {
-				t.Errorf("Bookmark '%s' has no URL", bookmark.Title)
-			}
-		}
-	})
-
-	t.Logf("Found %d folders and %d bookmarks", folderCount, bookmarkCount)
-
-	if folderCount == 0 {
-		t.Error("No folders found")
-	}
-
-	if bookmarkCount == 0 {
-		t.Error("No bookmarks found")
 	}
 }
 

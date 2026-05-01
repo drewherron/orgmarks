@@ -10,11 +10,10 @@ import (
 	"github.com/drewherron/orgmarks/internal/parser"
 )
 
-func TestFirefoxHTMLToOrg(t *testing.T) {
-	// Parse Firefox HTML bookmarks
-	htmlFile, err := os.Open("../../test/testdata/firefox_test_bookmarks.html")
+func TestHTMLToOrg(t *testing.T) {
+	htmlFile, err := os.Open("../../test/testdata/bookmarks.html")
 	if err != nil {
-		t.Fatalf("Failed to open Firefox HTML file: %v", err)
+		t.Fatalf("Failed to open HTML file: %v", err)
 	}
 	defer htmlFile.Close()
 
@@ -24,7 +23,6 @@ func TestFirefoxHTMLToOrg(t *testing.T) {
 		t.Fatalf("Failed to parse HTML: %v", err)
 	}
 
-	// Convert to org-mode
 	var buf bytes.Buffer
 	err = ToOrg(root, &buf)
 	if err != nil {
@@ -33,14 +31,12 @@ func TestFirefoxHTMLToOrg(t *testing.T) {
 
 	orgOutput := buf.String()
 
-	// Basic validation
 	if orgOutput == "" {
 		t.Fatal("Org output is empty")
 	}
 
 	t.Logf("Generated org output (%d bytes)", len(orgOutput))
 
-	// Check for expected org-mode elements
 	if !strings.Contains(orgOutput, "* ") {
 		t.Error("No org headlines found")
 	}
@@ -57,7 +53,6 @@ func TestFirefoxHTMLToOrg(t *testing.T) {
 		t.Error("SHORTCUTURL property not found")
 	}
 
-	// Print a sample of the output
 	lines := strings.Split(orgOutput, "\n")
 	sampleSize := 30
 	if len(lines) < sampleSize {
@@ -66,54 +61,10 @@ func TestFirefoxHTMLToOrg(t *testing.T) {
 	t.Logf("First %d lines of output:\n%s", sampleSize, strings.Join(lines[:sampleSize], "\n"))
 }
 
-func TestChromiumHTMLToOrg(t *testing.T) {
-	// Parse Chromium HTML bookmarks
-	htmlFile, err := os.Open("../../test/testdata/chromium_test_bookmarks.html")
-	if err != nil {
-		t.Fatalf("Failed to open Chromium HTML file: %v", err)
-	}
-	defer htmlFile.Close()
-
-	htmlParser := parser.NewHTMLParser(htmlFile)
-	root, err := htmlParser.Parse()
-	if err != nil {
-		t.Fatalf("Failed to parse HTML: %v", err)
-	}
-
-	// Convert to org-mode
-	var buf bytes.Buffer
-	err = ToOrg(root, &buf)
-	if err != nil {
-		t.Fatalf("Failed to convert to org: %v", err)
-	}
-
-	orgOutput := buf.String()
-
-	// Basic validation
-	if orgOutput == "" {
-		t.Fatal("Org output is empty")
-	}
-
-	t.Logf("Generated org output (%d bytes)", len(orgOutput))
-
-	// Check for expected org-mode elements
-	if !strings.Contains(orgOutput, "* ") {
-		t.Error("No org headlines found")
-	}
-
-	if !strings.Contains(orgOutput, "[[http") {
-		t.Error("No links found")
-	}
-
-	// Print full output for Chromium (it's small)
-	t.Logf("Full output:\n%s", orgOutput)
-}
-
 func TestRoundTripHTMLToOrgToHTML(t *testing.T) {
-	// Parse Firefox HTML bookmarks
-	htmlFile, err := os.Open("../../test/testdata/firefox_test_bookmarks.html")
+	htmlFile, err := os.Open("../../test/testdata/bookmarks.html")
 	if err != nil {
-		t.Fatalf("Failed to open Firefox HTML file: %v", err)
+		t.Fatalf("Failed to open HTML file: %v", err)
 	}
 	defer htmlFile.Close()
 
